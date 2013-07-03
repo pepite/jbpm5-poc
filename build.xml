@@ -1,0 +1,206 @@
+<?xml version="1.0"?>
+<project name="jbpm-server" basedir=".">
+
+	<property file="${basedir}/build.properties" />
+
+	<property name="project.name" value="jbpm-server" />
+	<property name="version" value="M1" />
+
+	<property name="content.basePath" value="" />
+	<property name="content.context" value="" />
+	<property name="default.market" value="" />
+ 
+	<property name="deploy.dir" value="${appserver}/webapps/" />
+	<property name="src.dir" value="src/" />
+	<property name="lib.dir" value="lib" />
+	<property name="exploded.dir" value="exploded-archives" />
+	<property name="war.dir" value="${exploded.dir}/${project.name}.war" />
+	<property name="war.deploy.dir" value="${deploy.dir}/${project.name}.war" />
+
+	<property name="javac.debug" value="true" />
+	<property name="javac.deprecation" value="false" />
+	<property name="dist.dir" value="dist" />
+
+	<property name="profile" value="dev" />
+
+	<property name="appserver.lib" value="${appserver}/lib/" />
+
+	<property name="junit.jar" value="${lib.dir}/junit-4.10/junit-4.10.jar" />
+	<property name="ant-junit.jar" value="${lib.dir}/ant-1.7/ant-junit.jar" />
+	<property name="lib.springframework" value="${lib.dir}/spring-framework-3.0.3/" />
+	<property name="lib.springsecurity" value="${lib.dir}/spring-security-3.0.5/" />
+	<property name="lib.jakarta-commons" value="${lib.dir}/apache-commons/" />
+	<property name="lib.hibernatevalidator" value="${lib.dir}/hibernate-validation-4.1/" />
+	<property name="lib.javamail" value="${lib.dir}/javamail-1.4.4/" />
+	<property name="lib.sqljdbc" value="${lib.dir}/sqljdbc-3.0/" />
+	<property name="lib.jaxen" value="${lib.dir}/jaxen-1.1" />
+	<property name="lib.jbpm" value="${lib.dir}/jboss-jbpm-engine" />
+
+	<property name="lib.jslt" value="${lib.dir}/jstl-1.1/" />
+
+	<path id="build.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init" description="Initialize the build">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${war.dir}" />
+		<mkdir dir="${war.dir}/WEB-INF" />
+		<mkdir dir="${war.dir}/WEB-INF/classes" />
+		
+		<tstamp />
+		<property name="buildVersion" value="${DSTAMP}-${TSTAMP}" />
+	</target>
+
+	<target name="compile" depends="init" description="Compile the Java source code" unless="eclipse.running">
+		<javac classpathref="build.classpath" destdir="${war.dir}/WEB-INF/classes/" debug="${javac.debug}" deprecation="${javac.deprecation}" nowarn="on" source="1.5" target="1.5">
+			<src path="${src.dir}" />
+			<exclude name="**/*Test*" />
+		</javac>
+	</target>
+
+	<target name="war-packed" depends="war" description="build the war file">
+		<jar jarfile="${dist.dir}/${project.name}.war" basedir="${war.dir}" />
+	</target>
+
+	<target name="clean" description="Cleans up the build directory">
+		<delete dir="${dist.dir}" />
+		<delete dir="${exploded.dir}" />
+	</target>
+
+	<target name="war" depends="compile" description="Build the distribution .war file">
+		<copy todir="${war.dir}" overwrite="true">
+			<fileset dir="${basedir}/src-static/${project.name}.war" excludes="WEB-INF/web.xml" />
+		</copy>
+		<copy overwrite="true" todir="${war.dir}/WEB-INF">
+			<fileset dir="${basedir}/src-static/${project.name}.war/WEB-INF">
+				<include name="*.*" />
+				<include name="classes/**/*.*" />
+				<exclude name="web.xml" />
+			</fileset>
+		</copy>
+		<copy overwrite="true" todir="${war.dir}/WEB-INF">
+			<fileset dir="${basedir}/src-static/${project.name}.war/WEB-INF">
+				<include name="web.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF">
+			<fileset dir="${basedir}/src-static/${project.name}.war/WEB-INF">
+				<include name="lib/*.*" />
+				<exclude name="classes/**/*.class" />
+			</fileset>
+		</copy>
+	
+		<copy tofile="${war.dir}/WEB-INF/classes/log4j.properties" file="conf/war/log4j/log4j-${profile}.properties" />
+
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.springframework}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.springsecurity}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jakarta-commons}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.hibernatevalidator}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jaxen}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jslt}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.javamail}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.sqljdbc}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.jbpm}">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+
+	</target>
+
+	<target name="usage" description="print the different options">
+		<echo message="" />
+		<echo message="jBPM Server build file" />
+		<echo message="-----------------------------------" />
+		<echo message="" />
+		<echo message="Available targets are:" />
+		<echo message="" />
+		<echo message="compile      --> Build the application" />
+		<echo message="war          --> Build the war file" />
+		<echo message="clean        --> Clean the build" />
+		<echo message="release      --> Release the application and the documentation" />
+		<echo message="install-dev  --> Install application in you local Tomcat. Careful, you need to have the following line in your tomcat-user.xml: &lt;user username='tomcat' password='tomcat'  roles='tomcat,manager' />" />
+		<echo message="reload       --> Reload application in Tomcat" />
+		<echo message="start        --> Start Tomcat application" />
+		<echo message="stop         --> Stop Tomcat application" />
+		<echo message="list         --> List Tomcat applications" />
+		<echo message="" />
+	</target>
+
+	<path id="catalina-ant-classpath">
+		<!-- We need the Catalina jars for Tomcat -->
+		<!--  * for other app servers - check the docs -->
+		<fileset dir="${appserver.lib}">
+			<include name="catalina-ant.jar" />
+		</fileset>
+	</path>
+
+	<taskdef name="install" classname="org.apache.catalina.ant.InstallTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="remove" classname="org.apache.catalina.ant.RemoveTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="list" classname="org.apache.catalina.ant.ListTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="start" classname="org.apache.catalina.ant.StartTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+
+	<target name="init-dev">
+		<property name="profile" value="dev" />
+	</target>
+
+	<target name="install-dev" depends="init-dev,war-packed" description="Install application in your local Tomcat">
+		<undeploy url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${project.name}" failonerror="no" />
+		<echo level="warning" message="Deploying jBPM-server on ${tomcat.manager.url}">
+		</echo>
+		<deploy url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${project.name}" war="${basedir}/${dist.dir}/${project.name}.war" />
+	</target>
+
+	<target name="reload" depends="init-dev" description="Reload application in Tomcat">
+		<reload url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+
+	<target name="start" description="Start local Tomcat">
+		<start url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+
+	<target name="stop" description="Stop local Tomcat Tomcat">
+		<stop url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+</project>
+
+

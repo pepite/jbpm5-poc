@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xml:lang='en' lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+    <head>
+   		<title>Lunatech - jBPM 5 Dashboard prototype</title>
+    	<!-- Bootstrap -->
+    	<link href="/jbpm-server/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    	<script src="/jbpm-server/static/js/jquery-1.7.1.min.js"></script>
+    	<style type="text/css">
+      body {
+        padding-top: 20px;
+        padding-bottom: 40px;
+      }
+
+      /* Custom container */
+      .container-narrow {
+        margin: 0 auto;
+        max-width: 700px;
+      }
+      .container-narrow > hr {
+        margin: 30px 0;
+      }
+
+      /* Main marketing message and sign up button */
+      .jumbotron {
+        margin: 60px 0;
+        text-align: center;
+      }
+      .jumbotron h1 {
+        font-size: 72px;
+        line-height: 1;
+      }
+      .jumbotron .btn {
+        font-size: 21px;
+        padding: 14px 24px;
+      }
+
+      /* Supporting marketing content */
+      .marketing {
+        margin: 60px 0;
+      }
+      .marketing p + h4 {
+        margin-top: 28px;
+      }
+    </style>
+	</head>
+	<body>
+<div class="container-narrow">
+
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="/jbpm-server/static/index.html">Home</a></li>
+          <li class="active"><a href="/jbpm-server/static/documentation.html">API Documentation</a></li>
+        </ul>
+        <h3 class="muted"><img style="width:200px" src="/jbpm-server/static/img/lunatech.png"></h3>
+      </div>
+
+      <hr>
+
+      <div class="jumbotron">
+        <p class="lead">This is the POC REST API documentation.</p>
+        <p>
+        		<b>/admin/process-definitions/list</b> -  List all the available workflow
+        </p>
+        <p><b>/admin/process-instances/{name}/start</b> - Start a process instance for the given workflows</p>
+        		<p><b>/admin/process-instances/list</b> - List all the running process instances</p>
+        		<p><b>/admin/process-instances/{id}</b> - Details the given process instance</p>
+        		<p><b>/admin/process-instances/{id}/node-name/{name}/retry</b> - Retry the activity with name {name} for the given process instance</p>
+        		<p><b>/admin/process-instances/{id}/node-id/{idnode}/retry</b> - Retry the activity with id {id} for the given process instance</p>
+        		<p><b>/admin/tasks/{name}/list</b> - Give all the tasks assign to user {name}</p>
+        		<p><b>/admin/tasks/{id}/complete</b> <br>Complete the task with id {id}</p>
+        </p>
+      </div>
+
+      <hr>
+
+    </div>
+</html>

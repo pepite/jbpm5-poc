@@ -76,7 +76,7 @@
         </div>
 
         <div class="span6">
-          <h4>Process definitions</h4>
+          <h4>Process definitions <a class="icon-plus icon-black" href="javascript:addProcessDefinition('sample2.bpmn');"> </a> </h4>
           <p>The process definition that can trigger new processes</p>
 		  <ul id="process-definitions"></ul>
 		
@@ -92,7 +92,7 @@
     </div>
       
    <script>
-     	 var refreshProcesses = function() { 
+   		 var refreshProcesses = function() { 
          	$.ajax({
 	   		  url: "http://localhost:8080/jbpm-server/admin/process-instances/list",
 	   		  success: function(data) {
@@ -151,18 +151,33 @@
      	 };
 
      	 
-    	 $.ajax({
-      		  url: "http://localhost:8080/jbpm-server/admin/process-definitions/list",
-      		  success: function(data) {
-      	   		$(data).find("process-definition").each(function() {
-   					var id = $(this).attr("id");
-   					var name = $(this).attr("name");
-   					var version = $(this).attr("version");
-   					$("#process-definitions").append("<li>" + name + " <b>-</b> " + id + " v<span class=\"badge\">" + version + "</span>  <a class=\"icon-play-circle icon-black\" href=\"javascript:start('" + id + "' )\">   </a></li>" );
-      		  	});
-   		  }
-       	});
-
+    	 var refreshProcessDefinition =  function() {
+        	  $.ajax({
+	      		  url: "http://localhost:8080/jbpm-server/admin/process-definitions/list",
+	      		  success: function(data) {
+	      			$("#process-definitions").empty();
+		   	   		
+	      	   		$(data).find("process-definition").each(function() {
+	   					var id = $(this).attr("id");
+	   					var name = $(this).attr("name");
+	   					var version = $(this).attr("version");
+	   					$("#process-definitions").append("<li>" + name + " <b>-</b> " + id + " v<span class=\"badge\">" + version + "</span>  <a class=\"icon-play-circle icon-black\" href=\"javascript:start('" + id + "' )\">   </a></li>" );
+	      		  	});
+		   		  }
+		       	});
+    	 };
+    	 
+    	 var addProcessDefinition = function(name) {
+    			$.ajax({
+   	   		  url: "http://localhost:8080/jbpm-server/admin/process-definition/" + name + "/add",
+   	   		  success: function(data) {
+   	   			refreshProcessDefinition();
+   	   		  }
+    			});
+    	   	 };
+    	   	 
+      	
+    	 
      	var restart = function(processid, nodeid) {
      		 $.ajax({
          		  url: "http://localhost:8080/jbpm-server/admin/process-instances/" + processid + "/node-id/" + nodeid + "/retry",
@@ -197,6 +212,7 @@
       	});
     };
 
+      refreshProcessDefinition();
       refreshProcesses();
       refreshTasks();
    	

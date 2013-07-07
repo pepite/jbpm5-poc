@@ -432,6 +432,37 @@ public class AdminController  {
 	}
 
 	@ResponseBody
+	@RequestMapping(value = "/admin/process-definition/{name}/add", method = RequestMethod.GET)
+	public ResponseEntity<String> addProcessDefinition(@PathVariable  String name){
+		try {
+
+			String output = "<result>OK</result>";
+			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory  
+					.newKnowledgeBuilder();  
+
+			kbuilder.add(ResourceFactory.newClassPathResource(name)  
+					,ResourceType.BPMN2);  
+
+			if (kbuilder.hasErrors()){  
+				throw new RuntimeException("Failed adding process definition "  
+						+ " due to " + kbuilder.getErrors());  
+			}  
+			// _ksession is the instance of StatefulKnowledgeSession already created  
+			ksession.getKnowledgeBase().addKnowledgePackages(  
+					kbuilder.getKnowledgePackages());
+
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.setContentType(MediaType.APPLICATION_XML);
+			return new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
+		} catch(Exception e) {
+			log.error("ss ", e);
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+			return new ResponseEntity<String>(" unexpected error " + e , responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}  
+
+	@ResponseBody
 	@RequestMapping(value = "/admin/process-instances/{id}/metadata/image", method = RequestMethod.GET)
 	public ResponseEntity<String> getImageMetadata(@PathVariable String id) {
 		try {

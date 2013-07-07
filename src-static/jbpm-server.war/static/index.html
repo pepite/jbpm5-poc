@@ -103,11 +103,33 @@
 						var process = $(this).attr("process-id");
 						var status = $(this).attr("status");
 						var currentnode = $(this).attr("current-node");
-						$("#process-instances").append("<li><span class=\"label label-warning\">Warning</span> " + name + " <b>-</b> " + status + "   <a class=\"icon-repeat icon-black\" href=\"javascript:restart(" + id + "," + currentnode + " )\">   </a></li>" );
-	   		  	 });
-			  }
-	     	});
-     	 };
+
+						// TODO: status
+						var label = "<span class=\"label label-success\">In progress</span> ";
+						if (status !== "STATE_ACTIVE") {
+							label = "<span class=\"label label-warning\">Warning</span> ";
+						}
+						$("#process-instances").append("<li>" + label + name + " <b>-</b> " + status + "   <a class=\"icon-repeat icon-black\" href=\"javascript:restart(" + id + "," + currentnode + " )\">   </a></li>" );
+						$("#process-instances").append("<li style=\"list-style:none\"><div id=\"" + id + "\" style=\"position:relative;height:203px\">"
+				        	+ "<img src=\"/jbpm-server/static/img/" + name + ".png\" style=\"position:absolute;top:0;left:0\" />"
+				            + "</div></li>");
+						$.ajax({
+					   		  url: "http://localhost:8080/jbpm-server/admin/process-instances/" + id + "/metadata/image",
+					   		  success: function(data) {
+					   			$(data).find("current-node").each(function() {
+					   				var img = $("<div id=\"" + id + "\" style=\"position:absolute;top: 0;left:0; height:20px;width: 20px;border: 2px solid rgb(230, 17, 43); border-radius: 5px;z-index: 1000;\">");
+				   					img.css("height", parseInt($(this).attr("height")) / 3.07 );
+				   					img.css("width", parseInt($(this).attr("width")) / 3.07 );
+				   					img.css("top", parseInt($(this).attr("y")) / 3.07 - 1);
+				   					img.css("left", parseInt($(this).attr("x")) / 3.07 - 1);
+				   					$("#" + id).append(img);
+					   		  	});
+					   		  }
+							});
+	   	   		 		});
+			  		}
+	     		});
+     	 	};
 
      	var refreshTasks = function() {
          	// User is always 'nicolas' 

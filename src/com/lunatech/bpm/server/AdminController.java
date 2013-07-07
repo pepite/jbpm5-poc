@@ -1,6 +1,7 @@
 package com.lunatech.bpm.server;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,8 @@ import org.drools.process.instance.WorkItem;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.NodeInstance;
 import org.drools.runtime.process.ProcessInstance;
+import org.jbpm.process.audit.JPAProcessInstanceDbLog;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.workitem.wsht.MinaHTWorkItemHandler;
 import org.jbpm.task.Group;
 import org.jbpm.task.User;
@@ -34,7 +37,10 @@ import org.jbpm.task.service.mina.MinaTaskClientHandler;
 import org.jbpm.task.service.mina.MinaTaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
+import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,7 +217,7 @@ public class AdminController  {
 	        responseHandler.waitTillDone(5000);
 			client.start(Long.valueOf(id), "nicolas", responseHandler);
 			Thread.sleep(1000);
-			client.complete(Long.valueOf(id), "nicolas", new ContentData(), responseHandler);
+			client.complete(Long.valueOf(id), "nicolas", null, responseHandler);
 			
 			output += "</tasks>";
 			client.disconnect();
@@ -254,7 +260,7 @@ public class AdminController  {
 			final WorkflowProcessInstance processInstance = (WorkflowProcessInstance)ksession.createProcessInstance(name, null);
 			ksession = addWorkItemHandlders(ksession);
 			
-			// TODO: This should be handled by a thread pool
+			// TODO: This should be handled by a thread pool (or Akka)
 			new Thread(new Runnable() {
 				
 				@Override
@@ -425,7 +431,48 @@ public class AdminController  {
 		return ksession;
 	}
 
-
+	@ResponseBody
+	@RequestMapping(value = "/admin/process-instances/{id}/metadata/image", method = RequestMethod.GET)
+	public ResponseEntity<String> getImageMetadata(@PathVariable String id) {
+		try {
+			final WorkflowProcessInstance processInstance = (WorkflowProcessInstance)ksession.getProcessInstance(Long.valueOf(id));
+			String output = "<result><current-nodes>";
+				
+			if (processInstance != null) {
+				org.drools.definition.process.Process process = kb.getProcess(processInstance.getProcessId());
+				// List the directory containing the layout
+				// Current node
+				List<Long> currentNodes = new ArrayList<Long>();
+				
+				for (NodeInstance nodeInstance : processInstance.getNodeInstances()) {
+					currentNodes.add(nodeInstance.getNodeId());
+				}
+				// Info about the current process node
+				for (org.drools.definition.process.Node node : ((WorkflowProcessImpl)process).getNodes())
+				   {
+				     if (currentNodes.contains(node.getId())) {
+						 log.info("Name of the Node : "+ node.getMetaData().toString());
+						 output += "<current-node x=\"" +  node.getMetaData().get("x") + "\" ";
+					     output += "y=\"" +  node.getMetaData().get("y") + "\" ";
+					     output += "height=\"" +  node.getMetaData().get("height") + "\" ";
+					     output += "width=\"" +  node.getMetaData().get("width") + "\" />";
+				     }
+				   }
+				output += "</current-nodes></result>";
+			} else {
+				output += "</current-nodes></result>";
+			}
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.setContentType(MediaType.APPLICATION_XML);
+			return new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
+		} catch(Exception e) {
+			log.error("ss ", e);
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+			return new ResponseEntity<String>(" unexpected error " + e , responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	
 	
 }

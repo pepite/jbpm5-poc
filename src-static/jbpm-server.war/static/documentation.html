@@ -19,7 +19,6 @@
       .container-narrow > hr {
         margin: 30px 0;
       }
-
       /* Main marketing message and sign up button */
       .jumbotron {
         margin: 60px 0;
@@ -58,20 +57,51 @@
 
       <div class="jumbotron">
         <p class="lead">This is the POC REST API documentation.</p>
+         <hr>
         <p>
-        		<b>/admin/process-definitions/list</b> -  List all the available workflow
-        </p>
-        <p><b>/admin/process-instances/{name}/start</b> - Start a process instance for the given workflows</p>
-        		<p><b>/admin/process-instances/list</b> - List all the running process instances</p>
-        		<p><b>/admin/process-instances/{id}</b> - Details the given process instance</p>
-        		<p><b>/admin/process-instances/{id}/node-name/{name}/retry</b> - Retry the activity with name {name} for the given process instance</p>
-        		<p><b>/admin/process-instances/{id}/node-id/{idnode}/retry</b> - Retry the activity with id {id} for the given process instance</p>
-        		<p><b>/admin/tasks/{name}/list</b> - Give all the tasks assign to user {name}</p>
-        		<p><b>/admin/tasks/{id}/complete</b> <br>Complete the task with id {id}</p>
+        <table class=".table">
+        	<thead>
+        		<tr>
+        			<th>Url </th><th> Description</th>
+        		</tr>
+        	</thead>
+        	<tbody>
+        		<tr>
+        			<td>/admin/process-definitions/list</td><td>List all the available workflow</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/process-definitions/list</td><td> Start a process instance for the given workflows</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/process-instances/list</td><td>  List all the running process instances</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/process-instances/{id}</td><td> Details the given process instance</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/process-instances/{id}/node-name/{name}/retry</td><td> Retry the activity with name {name} for the given process instance</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/process-instances/{id}/node-id/{idnode}/retry</td><td>Retry the activity with id {id} for the given process instance</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/tasks/{name}/list</td><td>Give all the tasks assign to user {name}</td>
+        		</tr>
+        		<tr>
+        			<td>/admin/tasks/{id}/complete</td><td>Complete the task with id {id}</td>
+        		</tr>
+				<tr>
+        			<td>/admin/process-instances/{id}/metadata/image</td><td>Provide image metadata for process instance {id}</td>
+        		</tr>
+        		        		
+        	</tbody>
+        
+        </table>
+          	
         </p>
       </div>
 
-      <hr>
+     
 
     </div>
 </html>
